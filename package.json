@@ -1,0 +1,26 @@
+{
+  "name": "autofill-teamspirit",
+  "version": "0.1.0",
+  "description": "Chrome extension for teamspirit",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com:horiuchi/autofill-teamspirit.git"
+  },
+  "keywords": [
+    "teamspirit"
+  ],
+  "author": "horiuchi.g@gmail.com",
+  "license": "BSD-3-Clause",
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^1.0.14",
+    "@types/chrome": "^0.0.253",
+    "typescript": "^5.3.2",
+    "vite": "^2.9.16"
+  }
+}
