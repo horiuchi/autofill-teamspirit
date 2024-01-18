@@ -34,10 +34,7 @@ async function findCell() {
     });
   }
 
-  async function waitForPresent(
-    doc: Document,
-    f: () => boolean
-  ): Promise<void> {
+  async function waitForPresent(target: Node, f: () => boolean): Promise<void> {
     return new Promise<void>((resolve) => {
       if (f()) {
         resolve();
@@ -50,19 +47,15 @@ async function findCell() {
             }
           }
         });
-        observer.observe(doc);
+        observer.observe(target, { attributes: true });
       }
     });
   }
 
   async function waitBusy(doc: Document) {
-    const $el = doc.getElementById(".BusyWait");
-    if ($el == null) {
-      return;
-    }
-
-    await waitForPresent(doc, () => $el.style.display !== "none");
-    await waitForPresent(doc, () => $el.style.display === "none");
+    const $el = await waitElement(doc, "BusyWait");
+    await waitForPresent($el, () => $el.style.display !== "none");
+    await waitForPresent($el, () => $el.style.display === "none");
   }
 
   async function waitElement<T extends HTMLElement = HTMLElement>(
@@ -110,11 +103,12 @@ async function findCell() {
         submit.click();
 
         await waitBusy(document);
+        await sleep(100);
       }
     }
   }
 
-  async function fillDetailTime($table: HTMLElement): Promise<void> {
+  async function fillDetailTime($jobTable: HTMLElement): Promise<void> {
     function isFriday($cell: HTMLElement): boolean {
       const content = $cell
         .closest<HTMLElement>(".days")
@@ -144,10 +138,15 @@ async function findCell() {
     }
 
     let jobMap: Record<string, string> | null = null;
-    const cells = $table.querySelectorAll<HTMLElement>("td.vjob div.png-add");
-    for (const $cell of Array.from(cells)) {
+    while (true) {
+      const $cell = $jobTable.querySelector<HTMLElement>("td.vjob div.png-add");
+      if ($cell == null) {
+        break;
+      }
+
       const isFridayCell = isFriday($cell);
-      // console.log("cell found!", $cell, isFridayCell);
+      // console.log("cell found!", isFridayCell);
+      // console.log($cell);
       $cell.click();
 
       const work = workTime(isFridayCell);
@@ -187,13 +186,19 @@ async function findCell() {
         $input.value = time;
       }
       $button.click();
+
       await waitBusy(document);
+      await sleep(100);
     }
   }
 
-  const $tableBody = document.getElementById("mainTableBody");
-  if ($tableBody != null) {
-    await fillWorkTime($tableBody);
-    await fillDetailTime($tableBody);
+  try {
+    const $tableBody = document.getElementById("mainTableBody");
+    if ($tableBody != null) {
+      await fillWorkTime($tableBody);
+      await fillDetailTime($tableBody);
+    }
+  } catch (e) {
+    console.error(e);
   }
 }
